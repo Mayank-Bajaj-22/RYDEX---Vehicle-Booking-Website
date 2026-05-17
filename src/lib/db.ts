@@ -23,6 +23,7 @@ const connectDb = async () => {
     if (!cached.promise) {
         cached.promise = mongoose.connect(mongodbUrl).then(c => c.connection)
     }
+    console.log("MongoDB connected");
 
     try {
         const conn = await cached.promise;
