@@ -1,6 +1,7 @@
 "use client"
 
-import { Lock, Mail, User, X } from "lucide-react"
+import axios from "axios"
+import { CircleDashed, Lock, Mail, User, X } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
 import Image from "next/image"
 import { useState } from "react"
@@ -15,6 +16,26 @@ type stepType = "login" | "signup" | "otp"
 function AuthModal({ open, onClose }: propType) {
 
     const [step, setStep] = useState("login");
+    const [name, setName] = useState("")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [err, setErr] = useState("")
+
+    const handleSignUp = async () => {
+        setLoading(true)
+        try {
+            const { data } = await axios.post("/api/auth/register", {
+                name, email, password
+            })
+            console.log(data)
+            setLoading(false)
+        } catch (err:any) {
+            setLoading(false)
+            setErr(err.response.data.message ?? "something went wrong")
+            // console.log(`Handle Sign Up Error: ${err.response.data.message}`)
+        }
+    }
 
     return (
         <AnimatePresence>
@@ -76,12 +97,12 @@ function AuthModal({ open, onClose }: propType) {
                                                     <div className="mt-5 space-y-4">
                                                         <div className="flex items-center gap-3 border  border-black/20 rounded-xl px-4 py-3">
                                                             <Mail size={18} className="text-gray-500" />
-                                                            <input type="email" placeholder="Email" className="w-full bg-transparent outline-none text-sm" />
+                                                            <input type="email" placeholder="Email" className="w-full bg-transparent outline-none text-sm" onChange={(e) => setEmail(e.target.value)} value={email} />
                                                         </div>
 
                                                         <div className="flex items-center gap-3 border  border-black/20 rounded-xl px-4 py-3">
                                                             <Lock size={18} className="text-gray-500" />
-                                                            <input type="password" placeholder="Password" className="w-full bg-transparent outline-none text-sm" />
+                                                            <input type="password" placeholder="Password" className="w-full bg-transparent outline-none text-sm" onChange={(e) => setPassword(e.target.value)} value={password} />
                                                         </div>
 
                                                         <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">
@@ -90,9 +111,9 @@ function AuthModal({ open, onClose }: propType) {
                                                     </div>
 
                                                     <p className="mt-6 text-center text-sm text-gray-500">
-                                                        Don't have an account? <div onClick={() => setStep("signup")} className="text-black font-medium hover:underline">
+                                                        Don't have an account? <span onClick={() => setStep("signup")} className="text-black font-medium hover:underline">
                                                             Sign Up
-                                                        </div>
+                                                        </span>
                                                     </p>
                                                 </motion.div>
                                             )
@@ -111,28 +132,32 @@ function AuthModal({ open, onClose }: propType) {
                                                     <div className="mt-5 space-y-4">
                                                         <div className="flex items-center gap-3 border  border-black/20 rounded-xl px-4 py-3">
                                                             <User size={18} className="text-gray-500" />
-                                                            <input type="text" placeholder="Full Name" className="w-full bg-transparent outline-none text-sm" />
+                                                            <input type="text" placeholder="Full Name" className="w-full bg-transparent outline-none text-sm" onChange={(e) => setName(e.target.value)} value={name} />
                                                         </div>
 
                                                         <div className="flex items-center gap-3 border  border-black/20 rounded-xl px-4 py-3">
                                                             <Mail size={18} className="text-gray-500" />
-                                                            <input type="email" placeholder="Email" className="w-full bg-transparent outline-none text-sm" />
+                                                            <input type="email" placeholder="Email" className="w-full bg-transparent outline-none text-sm" onChange={(e) => setEmail(e.target.value)} value={email} />
                                                         </div>
 
                                                         <div className="flex items-center gap-3 border  border-black/20 rounded-xl px-4 py-3">
                                                             <Lock size={18} className="text-gray-500" />
-                                                            <input type="password" placeholder="Password" className="w-full bg-transparent outline-none text-sm" />
+                                                            <input type="password" placeholder="Password" className="w-full bg-transparent outline-none text-sm" onChange={(e) => setPassword(e.target.value)} value={password} />
                                                         </div>
 
-                                                        <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">
-                                                            SignUp
+                                                        {
+                                                            err && <p className="text-red-500 text-center">*{err}</p>
+                                                        }
+
+                                                        <button className="w-full flex items-center justify-center h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition" onClick={handleSignUp} disabled={loading}>
+                                                            { !loading ? "Sign Up" : <CircleDashed size="18" color="white" className="animate-spin" />}
                                                         </button>
                                                     </div>
 
                                                     <p className="mt-6 text-center text-sm text-gray-500">
-                                                        Already have an account? <div onClick={() => setStep("login")} className="text-black font-medium hover:underline">
+                                                        Already have an account? <span onClick={() => setStep("login")} className="text-black font-medium hover:underline">
                                                             Login
-                                                        </div>
+                                                        </span>
                                                     </p>
                                                 </motion.div>
                                             )
