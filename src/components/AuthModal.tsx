@@ -3,6 +3,7 @@
 import axios from "axios"
 import { CircleDashed, Lock, Mail, User, X } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
+import { signIn, useSession } from "next-auth/react"
 import Image from "next/image"
 import { useState } from "react"
 
@@ -22,6 +23,9 @@ function AuthModal({ open, onClose }: propType) {
     const [loading, setLoading] = useState(false)
     const [err, setErr] = useState("")
 
+    const { data } = useSession()
+    console.log(data)
+
     const handleSignUp = async () => {
         setLoading(true)
         try {
@@ -35,6 +39,15 @@ function AuthModal({ open, onClose }: propType) {
             setErr(err.response.data.message ?? "something went wrong")
             // console.log(`Handle Sign Up Error: ${err.response.data.message}`)
         }
+    }
+
+    const handleLogin = async () => {
+        setLoading(true)
+        const response = await signIn("credentials", {
+            email, password, redirect: false
+        })
+        setLoading(false)
+        console.log(response)
     }
 
     return (
@@ -105,8 +118,8 @@ function AuthModal({ open, onClose }: propType) {
                                                             <input type="password" placeholder="Password" className="w-full bg-transparent outline-none text-sm" onChange={(e) => setPassword(e.target.value)} value={password} />
                                                         </div>
 
-                                                        <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">
-                                                            Login
+                                                        <button className="w-full flex items-center justify-center h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition" onClick={handleLogin} disabled={loading}>
+                                                            { !loading ? "Login" : <CircleDashed size="18" color="white" className="animate-spin" /> }
                                                         </button>
                                                     </div>
 
@@ -150,7 +163,7 @@ function AuthModal({ open, onClose }: propType) {
                                                         }
 
                                                         <button className="w-full flex items-center justify-center h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition" onClick={handleSignUp} disabled={loading}>
-                                                            { !loading ? "Sign Up" : <CircleDashed size="18" color="white" className="animate-spin" />}
+                                                            { !loading ? "Sign Up" : <CircleDashed size="18" color="white" className="animate-spin" /> }
                                                         </button>
                                                     </div>
 
