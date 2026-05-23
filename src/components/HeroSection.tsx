@@ -42,6 +42,9 @@ function HeroSection({onAuthRequired}: authType) {
                 </motion.div>
 
                 <motion.button
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className='mt-12 px-10 py-4 bg-white text-black rounded-full font-semibold shadow-xl'

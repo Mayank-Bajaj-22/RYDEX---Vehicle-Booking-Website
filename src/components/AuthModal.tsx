@@ -50,6 +50,10 @@ function AuthModal({ open, onClose }: propType) {
         console.log(response)
     }
 
+    const handleGoogleLogin = async () => {
+        const response = await signIn("google")
+    }
+
     return (
         <AnimatePresence>
             {
@@ -83,7 +87,7 @@ function AuthModal({ open, onClose }: propType) {
                                         </p>
                                     </div>
 
-                                    <button className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition">
+                                    <button className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition cursor-pointer" onClick={handleGoogleLogin}>
                                         <Image src={"/google.png"} alt="google" width={20} height={20} />
                                         Continue with Google
                                     </button>
@@ -118,13 +122,13 @@ function AuthModal({ open, onClose }: propType) {
                                                             <input type="password" placeholder="Password" className="w-full bg-transparent outline-none text-sm" onChange={(e) => setPassword(e.target.value)} value={password} />
                                                         </div>
 
-                                                        <button className="w-full flex items-center justify-center h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition" onClick={handleLogin} disabled={loading}>
+                                                        <button className="w-full cursor-pointer flex items-center justify-center h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition" onClick={handleLogin} disabled={loading}>
                                                             { !loading ? "Login" : <CircleDashed size="18" color="white" className="animate-spin" /> }
                                                         </button>
                                                     </div>
 
                                                     <p className="mt-6 text-center text-sm text-gray-500">
-                                                        Don't have an account? <span onClick={() => setStep("signup")} className="text-black font-medium hover:underline">
+                                                        Don't have an account? <span onClick={() => setStep("signup")} className="text-black font-medium hover:underline cursor-pointer">
                                                             Sign Up
                                                         </span>
                                                     </p>
@@ -162,13 +166,13 @@ function AuthModal({ open, onClose }: propType) {
                                                             err && <p className="text-red-500 text-center">*{err}</p>
                                                         }
 
-                                                        <button className="w-full flex items-center justify-center h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition" onClick={handleSignUp} disabled={loading}>
+                                                        <button className="w-full cursor-pointer flex items-center justify-center h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition" onClick={handleSignUp} disabled={loading}>
                                                             { !loading ? "Sign Up" : <CircleDashed size="18" color="white" className="animate-spin" /> }
                                                         </button>
                                                     </div>
 
                                                     <p className="mt-6 text-center text-sm text-gray-500">
-                                                        Already have an account? <span onClick={() => setStep("login")} className="text-black font-medium hover:underline">
+                                                        Already have an account? <span onClick={() => setStep("login")} className="text-black font-medium hover:underline cursor-pointer">
                                                             Login
                                                         </span>
                                                     </p>
