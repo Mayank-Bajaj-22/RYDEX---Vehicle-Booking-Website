@@ -1,4 +1,5 @@
 import connectDb from "@/lib/db";
+import { sendMail } from "@/lib/sendMail";
 import User from "@/models/user.model";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
@@ -9,7 +10,7 @@ export async function POST(req: NextRequest) {
         await connectDb();
 
         let user = await User.findOne({ email })
-        if (user) {
+        if (user && user.isEmailVerified) { // user bhi hai aur verified bhi hai execute this
             return NextResponse.json(
                 {
                     message: "email already exists!"
@@ -33,9 +34,27 @@ export async function POST(req: NextRequest) {
 
         const hashedPassword = await bcrypt.hash(password, 10)
 
-        user = await User.create({
-            name, email, password: hashedPassword
-        })
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpiresTime = new Date(Date.now() + 10*60*1000);
+
+        if (user && !user.isEmailVerified) { // user hai par verified nhi jab yeh chalega 
+            user.name = name,
+            user.password = hashedPassword,
+            user.email = email,
+            user.otp = otp,
+            user.otpExpiresIn = otpExpiresTime
+            await user.save()
+        } else {
+            user = await User.create({
+                name, email, password: hashedPassword
+            })
+        }
+
+        await sendMail(
+            email,
+            "Your OTP for Email Verification",
+            `<h2>Your Email Verification OTP is <strong>${otp}</strong></h2>`
+        )
 
         return NextResponse.json(
             user,

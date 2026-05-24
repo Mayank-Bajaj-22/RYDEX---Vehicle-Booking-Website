@@ -6,6 +6,9 @@ interface IUser extends Document {
     password?: string,
     createdAt: Date,
     updatedAt: Date,
+    isEmailVerified?: Boolean,
+    otp?: string,
+    otpExpiresIn?: Date,
     role: "user" | "partner" | "admin"
 }
 
@@ -29,6 +32,16 @@ const userSchema = new mongoose.Schema<IUser>({
         type: String,
         default: "user",
         enum: ["user", "partner", "admin"]
+    },
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    },
+    otp: {
+        type: String,
+    },
+    otpExpiresIn: {
+        type: Date
     }
 }, {
     timestamps: true
