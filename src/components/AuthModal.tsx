@@ -34,7 +34,26 @@ function AuthModal({ open, onClose }: propType) {
                 name, email, password
             })
             // console.log(data)
+            setErr("")
             setStep("otp")
+            setLoading(false)
+        } catch (err:any) {
+            setLoading(false)
+            setErr(err.response.data.message ?? "something went wrong")
+            // console.log(`Handle Sign Up Error: ${err.response.data.message}`)
+        }
+    }
+
+    const handleVerifyEmail = async () => {
+        setLoading(true)
+        try {
+            const { data } = await axios.post("/api/auth/verify-email", {
+                email, otp: otp.join("")
+            })
+            console.log(data)
+            setOtp(["", "", "", "", "", ""])
+            setErr("")
+            setStep("login")
             setLoading(false)
         } catch (err:any) {
             setLoading(false)
@@ -223,8 +242,12 @@ function AuthModal({ open, onClose }: propType) {
                                                         }
                                                     </div>
 
-                                                    <button className="mt-6 w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">
-                                                        Verify and Create Account
+                                                    {
+                                                        err && <p className="text-red-500 text-center">*{err}</p>
+                                                    }
+
+                                                    <button className="mt-6 w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition" onClick={handleVerifyEmail}>
+                                                        { !loading ? "Verify OTP and Create Account" : <CircleDashed size="18" color="white" className="animate-spin" /> }
                                                     </button>
                                                 </motion.div>
                                             )
