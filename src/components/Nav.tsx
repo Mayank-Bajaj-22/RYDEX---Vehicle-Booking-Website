@@ -11,6 +11,7 @@ import { AppDispatch, RootState } from '@/redux/store';
 import { Bike, Car, ChevronRight, LogOut, Menu, Truck, X } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { setUserData } from '@/redux/userSlice';
+import { useRouter } from 'next/navigation';
 
 const Nav_Items = ["Home", "Bookings", "About Us", "Contact"];
 function Nav() {
@@ -20,6 +21,7 @@ function Nav() {
     const { userData } = useSelector((state:RootState) => state.user)
     const [profileOpen, setProfileOpen] = useState(false)
     const [menuOpen, setMenuOpen] = useState(false)
+    const router = useRouter();
 
     const dispatch = useDispatch<AppDispatch>()
 
@@ -84,7 +86,7 @@ function Nav() {
                                                             <p className='text-xs uppercase'>{ userData.role }</p>
                                                             {
                                                                 userData.role != "partner" && (
-                                                                    <div className='w-full flex items-center gap-3 py-3 mt-2 hover:bg-gray-100 rounded-xl'>
+                                                                    <div className='w-full flex items-center gap-3 py-3 mt-2 hover:bg-gray-100 rounded-xl' onClick={() => router.push("/partner/onboarding/vehicle")}>
                                                                         <div className='flex -space-x-2'>
                                                                             <div className='w-6 h-6 rounded-full bg-black text-white flex items-center justify-center'>
                                                                                 <Bike size={16} />
@@ -205,7 +207,7 @@ function Nav() {
                                     <p className='text-xs uppercase'>{ userData.role }</p>
                                     {
                                         userData.role != "partner" && (
-                                            <div className='w-full flex items-center gap-3 py-3 mt-2 hover:bg-gray-100 rounded-xl'>
+                                            <div className='w-full flex items-center gap-3 py-3 mt-2 hover:bg-gray-100 rounded-xl' onClick={() => router.push("/partner/onboarding/vehicle")}>
                                                 <div className='flex -space-x-2'>
                                                     <div className='w-6 h-6 rounded-full bg-black text-white flex items-center justify-center'>
                                                         <Bike size={16} />
