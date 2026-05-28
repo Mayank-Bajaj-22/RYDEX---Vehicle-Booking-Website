@@ -147,7 +147,7 @@ function VehicleSlider() {
                                                 className='w-14 h-14 rounded-2xl border flex items-center justify-center mb-5 transition-colors'
                                             >
                                                 <motion.div
-                                                    animate={{ color: isHovered ? "#ffffff" : "3f3f46" }}
+                                                    animate={{ color: isHovered ? "#ffffff" : "#3f3f46" }}
                                                     transition={{ duration: 0.2 }}
                                                 >
                                                     <c.Icon size={24} strokeWidth={1.4} />  
