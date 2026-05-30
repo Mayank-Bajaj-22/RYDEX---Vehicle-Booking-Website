@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const { accountHolder, accountNumber, ifscCode, bankName, upi, mobileNumber } = await req.json();
-        if (!accountHolder || !accountNumber || !ifscCode || !bankName || !mobileNumber) {
+        const { accountHolder, accountNumber, ifscCode, upi, mobileNumber } = await req.json();
+        if (!accountHolder || !accountNumber || !ifscCode || !mobileNumber) {
             return Response.json(
                 { 
                     message: "All fields except UPI are required!" 
@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
                 accountHolder, 
                 accountNumber, 
                 ifscCode, 
-                bankName, 
                 upi,
                 status: "added"
             },

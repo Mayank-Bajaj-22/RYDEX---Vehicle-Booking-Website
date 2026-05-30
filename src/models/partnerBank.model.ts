@@ -5,7 +5,6 @@ interface IPartnerBank {
     accountHolder: string,
     accountNumber: string,
     ifscCode: string,
-    bankName: string,
     upi?: string,
     status: "not_added" | "added" | "verified",
     rejectionReason?: string,
@@ -32,10 +31,6 @@ const partnerBankSchema = new mongoose.Schema<IPartnerBank>({
         type: String,
         required: true,
         uppercase: true
-    },
-    bankName: {
-        type: String,
-        required: true
     },
     upi: {
         type: String

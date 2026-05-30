@@ -1,7 +1,7 @@
 "use client"
 
 import axios from 'axios';
-import { ArrowLeftIcon, FileCheck, UploadCloud } from 'lucide-react'
+import { ArrowLeftIcon, CircleDashed, FileCheck, UploadCloud } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -16,6 +16,8 @@ function page() {
         license: null,
         rc: null
     })
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleImage = (doc: docsType, file: File | null) => {
         if (!file) {
@@ -25,19 +27,27 @@ function page() {
     }
 
     const handleDocs = async () => {
+        setError('');
+        setLoading(true)
         try {
             const formData = new FormData();
             if (!docs.aadhar || !docs.license || !docs.rc) {
-                return;
+                setError("all documents are required"),
+                setLoading(false)
+                
+                return null;
             }
             formData.append('aadhar', docs.aadhar as Blob);
             formData.append('license', docs.license as Blob);
             formData.append('rc', docs.rc as Blob);
 
             const { data } = await axios.post("/api/partner/onboarding/documents", formData);
+            setLoading(false)
             console.log(data)
-        } catch (error) {
-            console.error(error);
+        } catch (error: any) {
+            setError(error?.response?.data?.message ?? "something went wrong");
+            // console.log(error);
+            setLoading(false);
         }
     }
     return (
@@ -153,14 +163,20 @@ function page() {
                     </p>
                 </div>
 
+                {
+                    error && <p className='text-center text-sm text-red-500 mt-3 -mb-3'>
+                    *{ error }
+                </p>
+                }
+
                 <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                     className="mt-8 w-full h-14 bg-black rounded-2xl text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
                     onClick={handleDocs}
-                    disabled={!docs.aadhar || !docs.license || !docs.rc}
+                    disabled={loading}
                 >
-                    Continue
+                    { loading ? <CircleDashed className="animate-spin text-white" /> : "Save and Continue" }
                 </motion.button>
             </motion.div>
         </div>
