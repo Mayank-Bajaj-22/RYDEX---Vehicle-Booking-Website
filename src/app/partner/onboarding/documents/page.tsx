@@ -1,13 +1,45 @@
 "use client"
 
+import axios from 'axios';
 import { ArrowLeftIcon, FileCheck, UploadCloud } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+type docsType = 'aadhar' | 'license' | 'rc';
 
 function page() {
 
     const router = useRouter();
+    const [docs, setDocs] = useState<Record<docsType,File | null>>({
+        aadhar: null,
+        license: null,
+        rc: null
+    })
 
+    const handleImage = (doc: docsType, file: File | null) => {
+        if (!file) {
+            return;
+        }
+        setDocs(prev => ({ ...prev, [doc]: file }));
+    }
+
+    const handleDocs = async () => {
+        try {
+            const formData = new FormData();
+            if (!docs.aadhar || !docs.license || !docs.rc) {
+                return;
+            }
+            formData.append('aadhar', docs.aadhar as Blob);
+            formData.append('license', docs.license as Blob);
+            formData.append('rc', docs.rc as Blob);
+
+            const { data } = await axios.post("/api/partner/onboarding/documents", formData);
+            console.log(data)
+        } catch (error) {
+            console.error(error);
+        }
+    }
     return (
         <div className='min-h-screen bg-white flex items-center justify-center px-4'>
             <motion.div
@@ -57,6 +89,8 @@ function page() {
                                 <UploadCloud size={18} />
                             </div>
                         </div>
+
+                        <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => handleImage('aadhar', e.target?.files?.[0] || null)} />
                     </motion.label>
 
                     <motion.label
@@ -81,6 +115,8 @@ function page() {
                                 <UploadCloud size={18} />
                             </div>
                         </div>
+
+                        <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => handleImage('license', e.target?.files?.[0] || null)} />
                     </motion.label>
 
                     <motion.label
@@ -105,6 +141,8 @@ function page() {
                                 <UploadCloud size={18} />
                             </div>
                         </div>
+
+                        <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => handleImage('rc', e.target?.files?.[0] || null)} />
                     </motion.label>
                 </div>
 
@@ -119,6 +157,8 @@ function page() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                     className="mt-8 w-full h-14 bg-black rounded-2xl text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
+                    onClick={handleDocs}
+                    disabled={!docs.aadhar || !docs.license || !docs.rc}
                 >
                     Continue
                 </motion.button>

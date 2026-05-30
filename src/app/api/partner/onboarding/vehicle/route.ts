@@ -71,7 +71,7 @@ export async function POST(req: Request) {
             );
         }
 
-        let vehicle = await Vehicle.findOne({ owner: session.user.id });
+        let vehicle = await Vehicle.findOne({ owner: user._id });
         if (vehicle) {
             vehicle.type = type;
             vehicle.number = vehicleNumber;
@@ -88,6 +88,7 @@ export async function POST(req: Request) {
         }
 
         vehicle = await Vehicle.create({
+            owner: user._id,
             type,
             number: vehicleNumber,
             vehicleModel
@@ -107,12 +108,14 @@ export async function POST(req: Request) {
             }
         );
     } catch (error) {
+        console.error("VEHICLE API ERROR:", error);
+
         return Response.json(
-            { 
-                message: `vehicle error ${error}`
-            }, 
-            { 
-                status: 500 
+            {
+                error: error instanceof Error ? error.message : String(error),
+            },
+            {
+                status: 500,
             }
         );
     };
