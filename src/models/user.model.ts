@@ -8,6 +8,7 @@ export interface IUser extends Document {
     updatedAt: Date,
     isEmailVerified?: Boolean,
     otp?: string,
+    mobileNumber?: string,
     otpExpiresIn?: Date,
     partnerOnboardingStep: number,
     role: "user" | "partner" | "admin"
@@ -43,6 +44,10 @@ const userSchema = new mongoose.Schema<IUser>({
     },
     otpExpiresIn: {
         type: Date
+    },
+    mobileNumber: {
+        type: String,
+        match: [/^\d{10}$/, "Invalid mobile number! Must be 10 digits."]
     },
     partnerOnboardingStep: {
         type: Number,

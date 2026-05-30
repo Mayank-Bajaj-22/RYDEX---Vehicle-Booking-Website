@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import uploadOnCloudinary from "@/lib/cloudinary";
 import connectDb from "@/lib/db";
-import PartnerDocs from "@/models/partnerDocs";
+import PartnerDocs from "@/models/partnerDocs.model";
 import User from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
 
