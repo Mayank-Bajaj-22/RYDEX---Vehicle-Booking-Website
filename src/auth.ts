@@ -62,6 +62,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     callbacks: {
         async signIn({ user, account }) {
+            // console.log("DB USER ROLE:", dbUser.role);
             if (account?.provider == "google") {
                 await connectDb();
 
@@ -81,6 +82,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
 
         async jwt({ token, user }) {
+            // console.log("JWT USER:", user);
+            // console.log("JWT TOKEN:", token);
             if (user) {
                 token.id = user.id,
                 token.name = user.name,
@@ -92,6 +95,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
 
         async session({ token, session }) {
+            // console.log("SESSION ROLE:", token.role);
             if (session.user) {
                 session.user.id = token.id as string,
                 session.user.name = token.name as string,
