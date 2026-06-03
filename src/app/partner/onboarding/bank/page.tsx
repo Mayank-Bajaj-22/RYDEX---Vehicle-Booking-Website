@@ -4,7 +4,7 @@ import axios from 'axios';
 import { ArrowLeftIcon, BadgeCheck, CheckCircle, CircleDashed, CreditCard, IdCard, Landmark, Phone } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 
@@ -41,13 +41,31 @@ function page() {
                 upi
             })
             setLoading(false)
-            console.log(data);
+            // console.log(data);
         } catch (error: any) {
             setError(error?.response?.data?.message ?? "something went wrong");
             // console.log(error);
             setLoading(false);
         }
     }
+
+    const handleGetBank = async () => {
+        try {
+            const { data } = await axios.get("/api/partner/onboarding/bank")
+            // console.log(data);
+            setAccountHolder(data.partnerBank.accountHolder);
+            setAccountNumber(data.partnerBank.accountNumber);
+            setIfscCode(data.partnerBank.ifscCode);
+            setUpi(data.partnerBank.upi || '');
+            setMobileNumber(data.mobileNumber || '');
+        } catch (error: any) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        handleGetBank();
+    }, [])
 
     return (
         <div className='min-h-screen bg-white flex items-center justify-center px-4'>

@@ -50,6 +50,9 @@ function page() {
             setLoading(false);
         }
     }
+
+    const isCompleted = docs.aadhar && docs.license && docs.rc;
+
     return (
         <div className='min-h-screen bg-white flex items-center justify-center px-4'>
             <motion.div
@@ -92,12 +95,16 @@ function page() {
                         </div>
 
                         <div>
-                            <span className='text-xs text-gray-400'>
-                                Upload
-                            </span>
-                            <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'>
-                                <UploadCloud size={18} />
-                            </div>
+                            {
+                                docs.aadhar 
+                                ? <span className='text-xs text-green-600 font-medium'>Uploaded</span> 
+                                : <div>
+                                    <span className='text-xs text-gray-400'>Upload</span>
+                                    <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'>
+                                        <UploadCloud size={18} />
+                                    </div>
+                                </div>
+                            }
                         </div>
 
                         <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => handleImage('aadhar', e.target?.files?.[0] || null)} />
@@ -118,12 +125,16 @@ function page() {
                         </div>
 
                         <div>
-                            <span className='text-xs text-gray-400'>
-                                Upload
-                            </span>
-                            <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'>
-                                <UploadCloud size={18} />
-                            </div>
+                            {
+                                docs.license 
+                                ? <span className='text-xs text-green-600 font-medium'>Uploaded</span> 
+                                : <div>
+                                    <span className='text-xs text-gray-400'>Upload</span>
+                                    <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'>
+                                        <UploadCloud size={18} />
+                                    </div>
+                                </div>
+                            }
                         </div>
 
                         <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => handleImage('license', e.target?.files?.[0] || null)} />
@@ -144,12 +155,16 @@ function page() {
                         </div>
 
                         <div>
-                            <span className='text-xs text-gray-400'>
-                                Upload
-                            </span>
-                            <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'>
-                                <UploadCloud size={18} />
-                            </div>
+                            {
+                                docs.rc 
+                                ? <span className='text-xs text-green-600 font-medium'>Uploaded</span> 
+                                : <div>
+                                    <span className='text-xs text-gray-400'>Upload</span>
+                                    <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'>
+                                        <UploadCloud size={18} />
+                                    </div>
+                                </div>
+                            }
                         </div>
 
                         <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => handleImage('rc', e.target?.files?.[0] || null)} />
@@ -174,7 +189,7 @@ function page() {
                     whileTap={{ scale: 0.97 }}
                     className="mt-8 w-full h-14 bg-black rounded-2xl text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
                     onClick={handleDocs}
-                    disabled={loading}
+                    disabled={loading || !isCompleted}
                 >
                     { loading ? <CircleDashed className="animate-spin text-white" /> : "Save and Continue" }
                 </motion.button>

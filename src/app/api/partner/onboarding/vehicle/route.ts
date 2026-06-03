@@ -59,18 +59,6 @@ export async function POST(req: Request) {
 
         const vehicleNumber = number.toUpperCase();
 
-        const duplicateVehicle = await Vehicle.findOne({ number: vehicleNumber.toUpperCase() });
-        if (duplicateVehicle) {
-            return Response.json(
-                { 
-                    message: "Vehicle number already exists" 
-                }, 
-                { 
-                    status: 409 
-                }
-            );
-        }
-
         let vehicle = await Vehicle.findOne({ owner: user._id });
         if (vehicle) {
             vehicle.type = type;
@@ -83,6 +71,18 @@ export async function POST(req: Request) {
                 vehicle,
                 { 
                     status: 200 
+                }
+            );
+        }
+
+        const duplicateVehicle = await Vehicle.findOne({ number: vehicleNumber.toUpperCase() });
+        if (duplicateVehicle) {
+            return Response.json(
+                { 
+                    message: "Vehicle number already exists" 
+                }, 
+                { 
+                    status: 409 
                 }
             );
         }

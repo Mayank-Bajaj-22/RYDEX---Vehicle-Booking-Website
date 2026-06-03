@@ -2,9 +2,8 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import PartnerBank from "@/models/partnerBank.model";
 import User from "@/models/user.model";
-import { NextRequest } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
     try {
         await connectDb();
 
@@ -84,7 +83,7 @@ export async function POST(req: NextRequest) {
 };
 
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
     try{
         await connectDb();
 
@@ -114,16 +113,26 @@ export async function GET(req: NextRequest) {
         }
 
         const partnerBank = await PartnerBank.findOne({ owner: user._id });
-        if (partnerBank) { 
+        if (!partnerBank) {
             return Response.json(
-                partnerBank,
-                { 
-                    status: 200 
+                {
+                    message: "Partner bank details not found"
+                },
+                {
+                    status: 404
                 }
             );
-        } else {
-            return null;
         }
+
+        return Response.json(
+            {
+                partnerBank,
+                mobileNumber: user.mobileNumber
+            },
+            {
+                status: 200
+            }
+        );
     } catch (error) {
         return Response.json(
             { 
