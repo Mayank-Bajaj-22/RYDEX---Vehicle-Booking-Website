@@ -47,6 +47,7 @@ export async function GET(
 
         return NextResponse.json(
             {
+                partner,
                 vehicle: vehicle || null,
                 documents: documents || null,
                 bank: bank || null
