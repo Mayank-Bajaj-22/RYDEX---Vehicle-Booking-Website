@@ -65,6 +65,16 @@ export async function POST(req: Request) {
             vehicle.number = vehicleNumber;
             vehicle.vehicleModel = vehicleModel;
             vehicle.status = "pending";
+
+            if (user.partnerOnboardingStep < 2) {
+                user.partnerOnboardingStep = 2;
+                user.partnerStatus = "pending";
+                await user.save();
+            } else {
+                user.partnerOnboardingStep = 3;
+                user.partnerStatus = "pending";
+                await user.save();
+            }
             await vehicle.save();
 
             return Response.json( 
@@ -99,6 +109,8 @@ export async function POST(req: Request) {
         }
 
         user.role = "partner";
+        user.partnerStatus = "pending";
+
         await user.save();
 
         return Response.json(

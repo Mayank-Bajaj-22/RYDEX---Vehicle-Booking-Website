@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
         const pendingPartnerUsers = await User.find({ // Get Pending Partners Waiting for Review
             role: "partner",
             partnerStatus: "pending",
-            partnerOnboardingStep: 3
+            partnerOnboardingStep: { $gte: 3}
         })
 
         const partnerIds = pendingPartnerUsers.map(user => user._id);

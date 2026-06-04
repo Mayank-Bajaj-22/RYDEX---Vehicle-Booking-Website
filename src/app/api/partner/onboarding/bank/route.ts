@@ -58,9 +58,9 @@ export async function POST(req: Request) {
 
         user.mobileNumber = mobileNumber;
 
-        if (user.partnerOnboardingStep < 3) {
-            user.partnerOnboardingStep = 3;
-        }
+        user.partnerOnboardingStep = 3;
+
+        user.partnerStatus = "pending";
 
         await user.save();
 
