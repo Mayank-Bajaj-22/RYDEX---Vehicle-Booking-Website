@@ -37,8 +37,19 @@ function AdminDashboard() {
         }
     }
 
+    const handleGetPendingKyc = async () => {
+        try {
+            const { data } = await axios.get('/api/admin/video-kyc/pending');
+            console.log(data)
+            setPendingKyc(data);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     useEffect(() => {
         handleGetData();
+        handleGetPendingKyc();
     }, [])
 
     return (

@@ -66,6 +66,7 @@ export async function GET(
         }
 
         partner.partnerStatus = "approved";
+        partner.videoKycStatus = "pending";
         partner.partnerOnboardingStep = 4; 
 
         await partner.save();
