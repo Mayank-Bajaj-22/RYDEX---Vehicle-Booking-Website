@@ -9,6 +9,9 @@ import { useRouter } from 'next/navigation'
 import RejectionCard from './RejectionCard'
 import StatusCard from './StatusCard'
 import ActionCard from './ActionCard'
+import axios from 'axios'
+import PricingModal from './PricingModal'
+import { IVehicle } from '@/models/vehicle.model'
 
 type Step = {
     id: number
@@ -32,6 +35,9 @@ const TOTAL_STEPS = STEPS.length;
 function PartnerDashboard() {
 
     const [activeStep, setActiveStep] = useState(0);
+    const [requestLoading, setRequestLoading] = useState(false);
+    const [showPricing, setShowPricing] = useState(false);
+    const [vehicleData, setVehicleData] = useState<IVehicle | null>(null)
 
     const { userData } = useSelector((state: RootState) => state.user);
 
@@ -46,10 +52,29 @@ function PartnerDashboard() {
     const progressPercentage = ((activeStep - 1) / (TOTAL_STEPS - 1)) * 100;
 
     const goToStep = (step: Step) => {
+        if (step.id == 6 && userData?.partnerStatus === "approved" && userData.videoKycStatus === "approved") {
+            setShowPricing(true);
+            return;
+        }
+
         if (step.route && step.id <= activeStep) {
             router.push(step.route);
         }
     }
+
+    const handleGetPricing = async () => {
+        try {
+            const { data } = await axios.get("/api/partner/onboarding/pricing")
+            console.log(data)
+            setVehicleData(data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        handleGetPricing()
+    }, [])
 
     return (
         <div className="min-h-screen bg-linear-to-br from-gray-100 to-gray-200 px-4 pt-28 pb-20">
@@ -140,7 +165,12 @@ function PartnerDashboard() {
                             <RejectionCard 
                                 title="Video KYC Rejected"
                                 reason={userData.videoKycRejectionReason}
-                                actionLabel={`Request Again`}
+                                actionLabel={requestLoading ? "Requesting..." : "Request Again"}
+                                onAction={ async () => {
+                                    setRequestLoading(true)
+                                    await axios.get("/api/partner/video-kyc/request")
+                                    setRequestLoading(false)
+                                }}
                             />
                         ) : userData?.videoKycStatus == "in_progress" && userData?.videoKycRoomId ? (
                             <ActionCard
@@ -160,7 +190,34 @@ function PartnerDashboard() {
                         )
                     )
                 }
+
+                {
+                    activeStep == 7 && vehicleData?.status == "pending" && (
+                        <StatusCard 
+                            icon={<Clock size={20} />}
+                            title="Pricing Under Review"
+                            desc="Admin is reviewing your pricing."
+                        />
+                    )
+                }
+
+                {
+                    activeStep == 7 && vehicleData?.status == "rejected" && (
+                        <RejectionCard 
+                            title="Pricing Rejected"
+                            reason={vehicleData.rejectionReason}
+                            actionLabel="Edit & Resubmit"   
+                            onAction={() => setShowPricing(true)}
+                        />
+                    )
+                }
             </div>
+
+            <PricingModal
+                open={showPricing}
+                onclose={() => setShowPricing(false)}  
+                data={vehicleData}
+            />
         </div>
     )
 }

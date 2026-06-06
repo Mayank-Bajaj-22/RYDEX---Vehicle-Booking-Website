@@ -2,9 +2,11 @@
 
 import { RootState } from '@/redux/store';
 import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
-import { CheckCircle, Mic, MicOff, PhoneOff, Video, VideoOff, XCircle } from 'lucide-react';
+import axios from 'axios';
+import { CheckCircle, Mic, MicOff, PhoneOff, Video, VideoOff, X, XCircle } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -17,10 +19,17 @@ function page() {
     const [isCameraOn, setIsCameraOn] = useState(true)
     const [isMicOn, setIsMicOn] = useState(true)
     const [loading, setLoading] = useState(false)
+    const [aLoading, setALoading] = useState(false)
+    const [rLoading, setRLoading] = useState(false)
+    const [reason, setReason] = useState("")
+    const [showApprovalModal, setShowApprovalModal] = useState(false)
+    const [showRejectionModal, setShowRejectionModal] = useState(false)
 
     const { userData } = useSelector((state: RootState) => state.user)
 
     const { roomId } = useParams();
+
+    const router = useRouter();
 
     useEffect(() => {
         if (joined) return;
@@ -44,6 +53,39 @@ function page() {
 
         init()
     }, [])
+
+    const handleApprove = async () => {
+        setALoading(true)
+        try {
+            const { data } = await axios.post("/api/admin/video-kyc/complete", {
+                roomId,
+                action: "approved"
+            })
+            console.log(data)
+            setALoading(false)
+            router.push("/")
+        } catch (error: any) {
+            console.log(error.response.data.message ?? error)
+            setALoading(false)
+        }
+    }
+
+    const handleReject = async () => {
+        setRLoading(true)
+        try {
+            const { data } = await axios.post("/api/admin/video-kyc/complete", {
+                roomId,
+                action: "rejected",
+                reason
+            })
+            console.log(data)
+            setRLoading(false)
+            router.push("/")
+        } catch (error: any) {
+            console.log(error.response.data.message ?? error)
+            setRLoading(false)
+        }
+    }
 
     const toggleCamera = () => {
         if (!stream) return;
@@ -111,17 +153,17 @@ function page() {
                             {
                                 userData?.role === "admin" && (
                                     <>
-                                        <button className='bg-green-600 hover:bg-green-700 px-4 py-2 rounded-full text-sm flex items-center gap-2'>
+                                        <button className='bg-green-600 hover:bg-green-700 px-4 py-2 rounded-full text-sm flex items-center gap-2' onClick={() => setShowApprovalModal(true)}>
                                             <CheckCircle size={16} /> Approve
                                         </button>
-                                        <button className='bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full text-sm flex items-center gap-2'>
+                                        <button className='bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full text-sm flex items-center gap-2' onClick={() => setShowRejectionModal(true)}>
                                             <XCircle size={16} /> Reject
                                         </button>
                                     </>
                                 )
                             }
 
-                            <button className='bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full text-sm flex items-center gap-2'>
+                            <button className='bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full text-sm flex items-center gap-2' onClick={() => router.push("/")}>
                                 <PhoneOff size={16} /> End Call
                             </button>
                         </div>
@@ -191,6 +233,87 @@ function page() {
                     )
                 }
             </div>
+
+            <AnimatePresence>
+                {
+                    showApprovalModal && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className='fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4'
+                        >
+                            <motion.div
+                                initial={{ scale: 0.9 }}
+                                animate={{ scale: 1 }}
+                                className='relative bg-[#111] w-full max-w-md rounded-2xl p-6 shadow-2xl'
+                            >
+                                <button className='absolute top-4 right-4 text-gray-400' onClick={() => setShowApprovalModal(false)}>
+                                    <X size={16} />
+                                </button>
+
+                                <h2 className='text-lg font-semibold mb-4'>
+                                    Confirm Approval
+                                </h2>
+
+                                <div className='flex gap-4'>
+                                    <button className='flex-1 border rounded-xl py-2' onClick={() => setShowApprovalModal(false)}>
+                                        Cancel
+                                    </button>
+
+                                    <button className='flex-1 bg-green-600 rounded-xl py-2' disabled={aLoading} onClick={handleApprove}>
+                                        { aLoading ? "Processing..." : "Approve" }
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )
+                }
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {
+                    showRejectionModal && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className='fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4'
+                        >
+                            <motion.div
+                                initial={{ scale: 0.9 }}
+                                animate={{ scale: 1 }}
+                                className='relative bg-[#111] w-full max-w-md rounded-2xl p-6 shadow-2xl'
+                            >
+                                <button className='absolute top-4 right-4 text-gray-400' onClick={() => setShowRejectionModal(false)}>
+                                    <X size={16} />
+                                </button>
+
+                                <h2 className='text-lg font-semibold mb-4'>
+                                    Reject Parnter
+                                </h2>
+
+                                <textarea 
+                                    className='w-full bg-white/10 border border-white/20 rounded-xl p-3 mb-4 text-sm' 
+                                    value={reason}
+                                    placeholder='Give Rejection Reason'
+                                    onChange={(e) => setReason(e.target.value)}
+                                />
+
+                                <div className='flex gap-4'>
+                                    <button className='flex-1 border rounded-xl py-2' onClick={() => setShowRejectionModal(false)}>
+                                        Cancel
+                                    </button>
+
+                                    <button className='flex-1 bg-green-600 rounded-xl py-2' disabled={rLoading} onClick={handleReject}>
+                                        { rLoading ? "Processing..." : "Reject" }
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )
+                }
+            </AnimatePresence>
         </div>
     )
 }
