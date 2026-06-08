@@ -32,8 +32,9 @@ function AdminDashboard() {
             // console.log(data)
             setStats(data.stats);
             setPartnerReviews(data.pendingPartnersReviews);
+            setVehicleReviews(data.pendingVehicles);
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 

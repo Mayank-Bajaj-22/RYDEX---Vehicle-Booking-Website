@@ -34,6 +34,7 @@ function page() {
             })
             setLoading(false);
             console.log(data);
+            router.push("/")
         } catch (error: any) {
             setError(error?.response?.data?.message ?? "something went wrong");
             // console.log(error);
