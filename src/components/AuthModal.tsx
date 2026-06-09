@@ -246,7 +246,7 @@ function AuthModal({ open, onClose }: propType) {
                                                         err && <p className="text-red-500 text-center">*{err}</p>
                                                     }
 
-                                                    <button className="mt-6 w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition" onClick={handleVerifyEmail}>
+                                                    <button className="mt-6 w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition flex items-center justify-center" onClick={handleVerifyEmail}>
                                                         { !loading ? "Verify OTP and Create Account" : <CircleDashed size="18" color="white" className="animate-spin" /> }
                                                     </button>
                                                 </motion.div>
