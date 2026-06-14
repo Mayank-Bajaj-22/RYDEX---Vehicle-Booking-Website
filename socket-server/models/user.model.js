@@ -1,33 +1,6 @@
 import mongoose, { Document } from "mongoose"
 
-type VideoKycStatus = "not_required" | "pending" | "in_progress" | "approved" | "rejected"
-
-export interface IUser extends Document {
-    name: string,
-    email: string,
-    password?: string,
-    createdAt: Date,
-    updatedAt: Date,
-    isEmailVerified?: Boolean,
-    otp?: string,
-    mobileNumber?: string,
-    otpExpiresIn?: Date,
-    partnerOnboardingStep: number,
-    rejectionReason?: string,
-    videoKycStatus: VideoKycStatus,
-    videoKycRoomId: string,
-    videoKycRejectionReason: string,
-    partnerStatus: "pending" | "approved" | "rejected",
-    role: "user" | "partner" | "admin",
-    socketId: string | null,
-    location?: {
-        type: "Point",
-        coordinates: [number, number]
-    },
-    isOnline: Boolean
-}
-
-const userSchema = new mongoose.Schema<IUser>({
+const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, "Name is required field!"]
@@ -109,5 +82,5 @@ const userSchema = new mongoose.Schema<IUser>({
 
 userSchema.index({ location: "2dsphere" })
 
-const User = mongoose.models.User || mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
 export default User;
