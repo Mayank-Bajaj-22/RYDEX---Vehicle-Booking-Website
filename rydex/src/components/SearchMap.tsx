@@ -110,12 +110,13 @@ function SearchMap({ pickUp, drop, onChange, onDistance} : props) {
     }
 
     const reverseGeoCoding = async (lat:number, lon:number) => {
-        const { data } = await axios.get(`https://photon.komoot.io/reverse?lon=${lat}&lat=${lon}`);
+        const { data } = await axios.get(`https://photon.komoot.io/reverse?lon=${lon}&lat=${lat}`);
 
         if (!data.features.length) return
             
         const p = data.features[0].properties;
         const address = [p.name, p.street, p.city, p.state, p.country].filter(Boolean).join(",");
+        return address;
     }
 
     const loadRoute = async (p:[number, number], d:[number, number]) => {
@@ -135,21 +136,25 @@ function SearchMap({ pickUp, drop, onChange, onDistance} : props) {
     }
 
     const dragPickUp = async (lat: number, lon: number) => {
+        setReady(false);
         const addr = await reverseGeoCoding(lat, lon)
         setP1([lat, lon]);
         if (p2) {
             loadRoute([lat, lon], p2);
         }
         onChange?.(addr!, drop);
+        setReady(true);
     }   
 
     const dragDrop = async (lat: number, lon: number) => {
+        setReady(false);
         const addr = await reverseGeoCoding(lat, lon)
         setP2([lat, lon]);
         if (p1) {
             loadRoute(p1, [lat, lon]);
         }
         onChange?.(pickUp, addr!);
+        setReady(true);
     } 
 
     useEffect(() => {
@@ -161,7 +166,9 @@ function SearchMap({ pickUp, drop, onChange, onDistance} : props) {
                 if (!a || !b) {
                     return;
                 }
+                setReady(false);
                 await loadRoute(a, b);
+                setReady(true);
                 setP1(a);
                 setP2(b);
                 setReady(true)
