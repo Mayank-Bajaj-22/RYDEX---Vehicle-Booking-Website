@@ -1,5 +1,6 @@
 "use client"
 
+import axios from 'axios';
 import { ArrowRight, Bike, Car, Clock, CreditCard, IndianRupee, MapPin, Navigation, ShieldCheck, Truck } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -28,11 +29,38 @@ function page() {
     const dropLat = Number(params.get("droplat"));
     const dropLong = Number(params.get("droplong"));
     const vehicle = params.get("vehicle") || "";
+    const driverId = params.get("driverId") || "";
+    const vehicleId = params.get("vehicleId") || "";
     const fare = params.get("fare") || "";
 
     const { Icon, label } = VEHICLE_META[vehicle];
 
     const [status, setStatus] = useState<Status>("idle");
+
+    const handleRequestBooking = async () => {
+        try {
+            const { data } = await axios.post("/api/booking/create", {
+                driverId, 
+                vehicleId, 
+                pickUpAddress: pickUp, 
+                dropAddress: drop, 
+                pickUpLocation: {
+                    type: "Point",
+                    coordinates: [pickUpLong, pickUpLat]
+                }, 
+                dropLocation: {
+                    type: "Point",
+                    coordinates: [dropLong, dropLat]
+                }, 
+                fare, 
+                mobileNumber: mobile
+            })
+
+            console.log(data)
+        } catch (error: any) {
+            console.log(error?.response?.data.message)
+        }
+    }
 
     return (
         <div className='min-h-screen bg-zinc-100 px-4 py-12'>
@@ -198,6 +226,7 @@ function page() {
                                                 whileTap={{ scale: 0.97 }}
                                                 whileHover={{ scale: 1.02 }}
                                                 className='w-full h-14 mt-8 bg-zinc-900 hover:bg-black disabled:opacity-40 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-2.5 transition-colors shadow-md'
+                                                onClick={handleRequestBooking}
                                             >
                                                 <span>Request Ride</span><ArrowRight size={15} />
                                             </motion.button>
