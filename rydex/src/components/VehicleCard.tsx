@@ -1,6 +1,6 @@
 "use client"
 
-import { IVehicle } from '@/models/vehicle.model'
+import { vehicleType } from '@/models/vehicle.model'
 import { ArrowRight, Bike, Car, Clock, Gauge, IndianRupee, Star, Truck } from 'lucide-react'
 import { motion } from 'motion/react'
 
@@ -12,7 +12,23 @@ const TYPE_CONFIG = {
     truck: { label: "Truck", Icon: Truck },
 }
 
-function VehicleCard({ vehicle, distance } : { vehicle: IVehicle, distance: number | undefined }) {
+interface IVehicle {
+    owner: string,
+    type: vehicleType,
+    vehicleModel: string,
+    number: string,
+    imageUrl?: string,
+    baseFare?: number,
+    pricePerKm?: number,
+    waitingCharge?: number,
+    status: "pending" | "approved" | "rejected",
+    rejectionReason?: string,
+    isActive: boolean,
+    createdAt: Date,
+    updatedAt: Date
+}
+
+function VehicleCard({ vehicle, distance, onBook } : { vehicle: IVehicle, distance: number | undefined, onBook: () => void }) {
 
     const { Icon, label } = TYPE_CONFIG[vehicle.type];
 
@@ -131,6 +147,7 @@ function VehicleCard({ vehicle, distance } : { vehicle: IVehicle, distance: numb
                         whileTap={{ scale: 0.92 }}
                         whileHover={{ scale: 1.04 }}
                         className='flex items-center gap-2 bg-zinc-900 hover:bg-black text-sm text-white font-black px-6 py-3.5 rounded-2xl transition-colors shadow-md'
+                        onClick={onBook}
                     >
                         Book
                         <motion.div

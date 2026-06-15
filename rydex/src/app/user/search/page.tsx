@@ -2,7 +2,7 @@
 
 import SearchMap from '@/components/SearchMap';
 import VehicleCard from '@/components/VehicleCard';
-import { IVehicle } from '@/models/vehicle.model';
+import { vehicleType } from '@/models/vehicle.model';
 import axios from 'axios';
 import { ArrowLeft, Bike, Car, MapPin, Navigation, RefreshCcw, Search, Truck, Zap } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react'
@@ -15,6 +15,22 @@ const VEHICLE_META: any = {
     car: { label: "Car", Icon: Car },
     loading: { label: "Loading", Icon: Truck },
     truck: { label: "Truck", Icon: Truck }
+}
+
+interface IVehicle {
+    owner: string,
+    type: vehicleType,
+    vehicleModel: string,
+    number: string,
+    imageUrl?: string,
+    baseFare?: number,
+    pricePerKm?: number,
+    waitingCharge?: number,
+    status: "pending" | "approved" | "rejected",
+    rejectionReason?: string,
+    isActive: boolean,
+    createdAt: Date,
+    updatedAt: Date
 }
 
 function page() {
@@ -53,7 +69,7 @@ function page() {
 
     useEffect(() => {
         getNearByVehicles(pickUpLat, pickUpLong, vehicle)
-    }, [pickUpLat, pickUpLong])
+    }, [pickUpLat, pickUpLong, pickUp])
 
     return (
         <div className='min-h-screen bg-zinc-100 text-zinc-900 overflow-x-hidden'>
@@ -227,6 +243,23 @@ function page() {
                                         <VehicleCard
                                             vehicle={v}
                                             distance={km}
+                                            onBook={
+                                                () => {
+                                                    const url = new URLSearchParams({
+                                                        pickUp,
+                                                        drop,
+                                                        vehicle: v.type,
+                                                        driverId: v.owner,
+                                                        fare: String(v.baseFare! + (v.pricePerKm!*km!)),
+                                                        pickUpLat: String(pickUpLat),
+                                                        pickUpLon: String(pickUpLong),
+                                                        dropLat: String(dropLat),
+                                                        dropLon: String(dropLong),
+                                                        mobile: String(mobile)
+                                                    })
+                                                    router.push(`/user/checkout?${url.toString()}`)
+                                                }
+                                            }
                                         />
                                     </motion.div>
                                 ))
