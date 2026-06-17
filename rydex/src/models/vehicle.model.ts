@@ -20,7 +20,7 @@ export interface IVehicle {
 
 const vehicleSchema = new mongoose.Schema<IVehicle>({
     owner: { 
-        type: mongoose.Types.ObjectId, 
+        type: mongoose.Schema.Types.ObjectId, 
         ref: "User", 
         required: true
     },
