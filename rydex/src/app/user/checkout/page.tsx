@@ -90,6 +90,75 @@ function page() {
         }
     }
 
+    const loadRazorpayScript = () => {
+        return new Promise((resolve) => {
+            if (typeof window === 'undefined') {
+                resolve(false);
+                return;
+            }
+
+            if ((window as any).Razorpay) {
+                resolve(true);
+                return;
+            }
+
+            const script = document.createElement("script");
+            script.src = "https://checkout.razorpay.com/v1/checkout.js"
+            script.onload = () => resolve(true)
+            script.onerror = () => resolve(false)
+            document.body.appendChild(script)
+        })
+    }
+
+    const handleConfirmPayment = async () => {
+        if (!booking || !paymentMethod) return;
+        try {
+            if (paymentMethod == "online") {
+                const razorpayLoaded = await loadRazorpayScript();
+                if (!razorpayLoaded) {
+                    alert("razorpay script failed to load")
+                }
+
+                const { data } = await axios.post("/api/payment/create", {
+                    bookingId: booking._id
+                })
+
+                const paymentObject = new (window as any).Razorpay({
+                    key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                    amount: data.amount,
+                    currency: "INR",
+                    name: "RYDEX",
+                    description: "Ride Payment",
+                    order_id: data.orderId,
+                    handler: async function (response: any) {
+                        console.log(response)
+                        const { data } = await axios.post("/api/payment/verify", {
+                            bookingId: booking._id,
+                            ...response
+                        })
+
+                        if (data.success) {
+                            setStatus("confirmed");
+                            window.location.href = `/ride/${booking._id}`
+                        }
+                    }
+                });
+
+                paymentObject.open()
+            } else {
+                const { data } = await axios.get(`/api/booking/${booking._id}/confirm`);
+                console.log(data);
+                if (data.success) {
+                    setStatus("confirmed");
+                    window.location.href = `/ride/${booking._id}`
+                }
+            }
+            
+        } catch (error:any) {
+            console.log(error?.response?.data.message)
+        }
+    }
+
     useEffect(() => {
         fetchActiveBooking();
     }, [])
@@ -435,6 +504,7 @@ function page() {
 
                                             <motion.button
                                                 whileTap={{ scale: 0.97 }}
+                                                onClick={handleConfirmPayment}
                                                 whileHover={ paymentMethod ? { scale: 1.02 } : {} }
                                                 disabled={ !paymentMethod }
                                                 className='w-full h-14 bg-zinc-900 hover:bg-black disabled:opacity-30 text-white font-semibold text-sm rounded-2xl flex items-center justify-center gap-2.5 transition-colors shadow-md mt-auto'
