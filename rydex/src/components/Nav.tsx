@@ -13,6 +13,7 @@ import { signOut } from 'next-auth/react';
 import { setUserData } from '@/redux/userSlice';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { getSocket } from '@/lib/socket';
 
 const Nav_Items = ["Home", "Bookings", "About Us", "Contact"];
 function Nav() {
@@ -22,7 +23,7 @@ function Nav() {
     const { userData } = useSelector((state:RootState) => state.user)
     const [profileOpen, setProfileOpen] = useState(false)
     const [menuOpen, setMenuOpen] = useState(false)
-    const [pendingCount, setPendingCount] = useState()
+    const [pendingCount, setPendingCount] = useState(0)
     const router = useRouter();
 
     const dispatch = useDispatch<AppDispatch>()
@@ -48,6 +49,16 @@ function Nav() {
             fetchCount()
         }
     }, [userData?.role])
+
+    useEffect(() => {
+            const socket = getSocket();
+            socket.on("accept-booking", (data) => {
+                setPendingCount(prev => prev + 1);
+            });
+            return () => {
+                socket.off("accept-booking");
+            }
+        }, []);
     
     return (
         <>
@@ -77,7 +88,7 @@ function Nav() {
                                 if (i == "Home") {
                                     href = `/`
                                 } else {
-                                    href = `/${i.toLowerCase()}`
+                                    href = `/user/${i.toLowerCase()}`
                                 }
                                 const active = (href == pathname)
                                 return <Link key={index} href={href} className={`text-sm font-medium transition ${active ? "text-white" : "text-gray-400 hover:text-white"}`}>{ i }</Link>

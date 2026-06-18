@@ -1,5 +1,6 @@
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
+import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -26,6 +27,12 @@ export async function GET(
     booking.bookingStatus = "rejected"
 
     await booking.save()
+
+    await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_SERVER_URL}/emit`, {
+        event: "reject-booking",
+        userId: booking.user.toString(),
+        data: booking.bookingStatus
+    });
 
     return NextResponse.json(
         {
