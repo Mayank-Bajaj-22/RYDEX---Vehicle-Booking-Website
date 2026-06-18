@@ -184,6 +184,7 @@ function page() {
     useEffect(() => {
         const socket = getSocket();
         socket.on("accept-booking", (data) => {
+            console.log(data)
             setStatus(data)
         });
         socket.on("reject-booking", (data) => {
@@ -573,6 +574,7 @@ function page() {
                                                 {
                                                     [0,1].map(i => (
                                                         <motion.div
+                                                            key={i}
                                                             initial={{ scale: 1, opacity: 0.5 }}
                                                             animate={{ scale: 2.2 + i * 0.6, opacity: 0 }}
                                                             transition={{ duration: 0.9, delay: 0.2 + i * 0.15 }}

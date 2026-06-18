@@ -280,7 +280,7 @@ function page() {
                                                     </div>
 
                                                     {
-                                                        b.bookingStatus !== "completed" && (
+                                                        (b.bookingStatus === "completed" || b.bookingStatus === "confirmed" || b.bookingStatus === "started") && (
                                                             <div className='flex items-center gap-2'>
                                                                 <button className='flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded-lg transition-colors' onClick={() => router.push("/partner/active-ride")}>
                                                                     <span>

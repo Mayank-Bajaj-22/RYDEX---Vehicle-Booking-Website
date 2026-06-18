@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export type BookingStatus = "idle" | "requested" | "awaiting_payment" | "confirmed" | "payment" | "started" | "completed" | "cancelled" | "rejected" | "expired";
+export type BookingStatus = "idle" | "requested" | "awaiting_payment" | "confirmed" | "started" | "completed" | "cancelled" | "rejected" | "expired";
 
 export type PaymentStatus = "pending" | "paid" | "cash" | "failed";
 
@@ -87,7 +87,7 @@ const bookingSchema = new mongoose.Schema<IBooking>(
         },
         bookingStatus: {
             type: String,
-            enum: ["idle", "requested", "awaiting_payment", "confirmed", "started", "completed", "cancelled", "rejected", "expired", "payment"],
+            enum: ["idle", "requested", "awaiting_payment", "confirmed", "started", "completed", "cancelled", "rejected", "expired"],
             default: "idle"
         },
         paymentStatus: {
