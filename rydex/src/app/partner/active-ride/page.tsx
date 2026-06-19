@@ -103,10 +103,6 @@ function page() {
     const [status, setStatus] = useState("")
     const [chatOpen, setChatOpen] = useState(false)
 
-    console.log(driverPos);
-    console.log(pickUpPos);
-    console.log(dropPos);
-
     const getActiveRide = async () =>{
         setLoading(true)
         try {
@@ -178,7 +174,7 @@ function page() {
 
     const paymentStatus = PAYMENT_BADGE[booking?.paymentStatus! ?? "pending"]
 
-    const panelProps = { isActive, displayDistance, displayEta, cfg, status, booking, paymentStatus, canChat, onChatToggle, chatOpen };
+    const panelProps = { isActive, displayDistance, displayEta, cfg, status, booking, paymentStatus, canChat, onChatToggle, chatOpen,currentRole: "driver" };
 
     return (
         <div className='h-screen w-full bg-zinc-100 flex flex-col lg:flex-row overflow-hidden'>

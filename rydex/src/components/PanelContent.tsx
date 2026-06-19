@@ -3,19 +3,8 @@
 import { Clock, IndianRupee, MessageCircle, Phone, User } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import RideChat from './RideChat'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/redux/store'
-import { useEffect } from 'react'
 
-function PanelContent({ isActive, displayDistance, displayEta, cfg, status, booking, paymentStatus, canChat, onChatToggle, chatOpen } : any) {
-
-    const { userData } = useSelector((state:RootState) => state.user)
-
-    let currentRole;
-
-    useEffect(() => {
-        currentRole = userData?._id === booking.driver._id ? "driver" : "user"
-    }, [userData?._id])
+function PanelContent({ isActive, displayDistance, displayEta, cfg, status, booking, paymentStatus, canChat, onChatToggle, chatOpen, currentRole } : any) {
 
     return (
         <div className='flex flex-col pt-5 pb-4 gap-3'>
@@ -61,7 +50,7 @@ function PanelContent({ isActive, displayDistance, displayEta, cfg, status, book
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4 }}
-                        className='mx-5 lg:px-6'
+                        className='lg:px-6'
                     >
                         <div className='bg-zinc-950 rounded-2xl p-4 flex items-center gap-4'>
                             <div className='relative flex shrink-0'>
@@ -141,7 +130,9 @@ function PanelContent({ isActive, displayDistance, displayEta, cfg, status, book
                             <div className='rounded-2xl overflow-hidden border border-zinc-100 h-115'>
                                 <RideChat 
                                     currentRole={currentRole} 
-                                    booking={booking} 
+                                    bookingId={booking._id} 
+                                    userName={booking?.user?.name || "customer"}
+                                    driverName={booking?.driver?.name || "driver"}
                                 />
                             </div>
                         </motion.div>
