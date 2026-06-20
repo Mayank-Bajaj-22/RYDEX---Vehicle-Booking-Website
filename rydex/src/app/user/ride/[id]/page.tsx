@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'motion/react'
 import { ChevronUp, Zap } from "lucide-react";
 import PanelContent from "@/components/PanelContent";
+import { useParams } from "next/navigation";
 import { getSocket } from "@/lib/socket";
 
 const MAP_STATUS: Record<BookingStatus, "arriving" | "ongoing" | "completed"> = {
@@ -105,10 +106,14 @@ function page() {
     const [chatOpen, setChatOpen] = useState(false)
     const [expanded, setExpanded] = useState(false)
 
+    const { id } = useParams()
+
     const getActiveRide = async () =>{
         setLoading(true)
         try {
-            const { data } = await axios.get("/api/partner/my-active");
+            const { data } = await axios.post("/api/user/active-ride", {
+                bookingId: id
+            });
             // console.log("Booking data:", data);
             setBooking(data)
             setStatus(data.bookingStatus)
@@ -126,50 +131,17 @@ function page() {
     }, [])
 
     useEffect(() => {
-        if (!navigator.geolocation) return;
-
         const socket = getSocket();
-
-        const watchId = navigator.geolocation.watchPosition((pos) => {
-            const lat = pos.coords.latitude
-            const lon = pos.coords.longitude
-            setDriverPos([lat, lon])
-            socket.emit("driver-location-update", {
-                bookingId: booking?._id,
-                latitude: lat,
-                longitude: lon,
-                status: status
-            })
-        },
-            (error) => {
-                console.log("gps error", error);
-            },
-            {
-                enableHighAccuracy: true,
-                maximumAge: 2000,
-                timeout: 10000
-            }
-        )
-
-        return () => {
-            navigator.geolocation.clearWatch(watchId);
-        }
-    }, [booking?._id])
-
-    useEffect(() => {
-        if (!booking?._id) return;
-        const socket = getSocket();
-        socket.emit("join-ride", booking?._id);
-
-        socket.on("driver-location", ({latitude, longitude}) => {
+        socket.emit("join-ride", id);
+        socket.on("driver-location", ({ latitude, longitude }) => {
+            // console.log("driver location:", data);
             setDriverPos([latitude, longitude]);
         })
-
         return () => {
             socket.off("join-ride");
             socket.off("driver-location");
         }
-    }, [booking?._id])
+    }, [])
 
     if (loading) {
         return (
@@ -200,7 +172,7 @@ function page() {
 
     const paymentStatus = PAYMENT_BADGE[booking?.paymentStatus! ?? "pending"]
 
-    const panelProps = { isActive, displayDistance, displayEta, cfg, status, booking, paymentStatus, canChat, onChatToggle, chatOpen,currentRole: "driver" };
+    const panelProps = { isActive, displayDistance, displayEta, cfg, status, booking, paymentStatus, canChat, onChatToggle, chatOpen,currentRole: "user" };
 
     return (
         <div className='h-screen w-full bg-zinc-100 flex flex-col lg:flex-row overflow-hidden'>
@@ -241,7 +213,7 @@ function page() {
             >
                 <div className="bg-zinc-950 px-6 py-5 flex shrink-0 flex-col">
                     <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-semibold mb-1">
-                        Driver Panel
+                        User Panel
                     </p>
 
                     <div className="flex items-center justify-between">

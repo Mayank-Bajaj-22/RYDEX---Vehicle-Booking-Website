@@ -105,7 +105,7 @@ const driverIcon = new L.DivIcon({
             justify-content: center;
             box-shadow: 0 0 0 3px #fff, 0 0 0 5px #0a0a0a, 0 8px 28px rgba(0,0,0,0.5)
         ">
-            <svg width: "22" height: "22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width= "22" height= "22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 11L6.5 6.5H17.5L19 11" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
                 <rect x="3" y="11" width="18" height="7" rx="2" stroke="white" stroke-width="1.6" />
                 <circle cx="7.5" cy="18.5" r="1.5" fill="white"/>
@@ -115,8 +115,8 @@ const driverIcon = new L.DivIcon({
         </div>
     </div>`,
     className: "",
-    iconSize: [32, 32],
-    iconAnchor: [20, 20]
+    iconSize: [52, 52],
+    iconAnchor: [26, 26]
 })
 
 function LiveRideMap({ driverLocation, pickUpLocation, dropLocation, mapStatus, onStats } : Props) {
@@ -160,7 +160,7 @@ function LiveRideMap({ driverLocation, pickUpLocation, dropLocation, mapStatus, 
                 } else {
                     setRouteToPickUp([])
 
-                    const dropRoute = await getRoute(dLat, dLon, drLat, drLon);
+                    const dropRoute = await getRoute(drLat, drLon, dLat, dLon);
 
                     if (dropRoute) {
                         setRouteToDrop(dropRoute.geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon]))
@@ -183,7 +183,7 @@ function LiveRideMap({ driverLocation, pickUpLocation, dropLocation, mapStatus, 
 
     const showPickMarker = mapStatus === "arriving";
     const showPickUpRoute = mapStatus === "arriving" && routeToPickUp.length > 0;
-    const showDropRoute = mapStatus !== "completed" && routeToPickUp.length > 0;
+    const showDropRoute = mapStatus !== "completed" && routeToDrop.length > 0;
 
     return (
         <div className='relative h-full w-full bg-zinc-100'>
@@ -202,7 +202,6 @@ function LiveRideMap({ driverLocation, pickUpLocation, dropLocation, mapStatus, 
                     showPickMarker && <Marker
                         position={pickUpLocation as any}
                         icon={pickUpIcon}
-                        draggable
                     />
                 }
 
@@ -210,7 +209,6 @@ function LiveRideMap({ driverLocation, pickUpLocation, dropLocation, mapStatus, 
                     dropLocation && <Marker
                         position={dropLocation as any}
                         icon={dropIcon}
-                        draggable
                     />
                 }
 
@@ -218,7 +216,6 @@ function LiveRideMap({ driverLocation, pickUpLocation, dropLocation, mapStatus, 
                     driverLocation && <Marker
                         position={driverLocation as any}
                         icon={driverIcon}
-                        draggable
                     />
                 }
 

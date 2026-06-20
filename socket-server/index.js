@@ -65,6 +65,26 @@ io.on("connection", (socket) => {
         })
     })
 
+    socket.on("join-ride", (bookingId) => {
+        console.log("join ride: ", bookingId);
+        socket.join(`ride-${bookingId}`)
+    })
+
+    socket.on("driver-location-update", ({ bookingId, latitude, longitude, status }) => {
+        io.to(`ride-${bookingId}`).emit("driver-location", {
+            latitude,
+            longitude
+        })
+    })
+
+    socket.on("chat-message", (data) => {
+        console.log("message received:", data);
+
+        const room = io.sockets.adapter.rooms.get(`ride-${data.bookingId}`);
+        console.log("users in room:", room);
+        io.to(`ride-${data.bookingId}`).emit("chat-message", data);
+    })
+
     socket.on("disconnect", async () => {
         if (!socket.userId) return;
         await User.findByIdAndUpdate(socket.userId, {

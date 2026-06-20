@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
+import { getSocket } from '@/lib/socket';
 
 type message = {
     bookingId: string,
@@ -29,14 +30,18 @@ function RideChat({ currentRole, bookingId ,userName, driverName } : any) {
     const { userData } = useSelector((state: RootState) => state.user)
 
     const sendMsg = async () => {
+        const socket = getSocket();
         try {
             const { data } = await axios.post("/api/chat/send", {
                 bookingId,
                 sender: currentRole,
                 text
             })
-            console.log(data)
-            setMessages([...messages, data])
+            // setMessages([...messages, data])
+            
+            socket.emit("chat-message", data)
+
+            setText("");
         } catch (error) {
             console.log(error)
         }
@@ -76,6 +81,31 @@ function RideChat({ currentRole, bookingId ,userName, driverName } : any) {
     useEffect(() => {
         getAllMsgs();
     }, []);
+
+    useEffect(() => {
+        const socket = getSocket();
+
+        const handleConnect = () => {
+            socket.emit("join-ride", bookingId);
+        };
+
+        const handleMessage = (data: any) => {
+            setMessages(prev => [...prev, data]);
+        };
+
+        if (socket.connected) {
+            handleConnect();
+        } else {
+            socket.on("connect", handleConnect);
+        }
+
+        socket.on("chat-message", handleMessage);
+
+        return () => {
+            socket.off("connect", handleConnect);
+            socket.off("chat-message", handleMessage);
+        };
+    }, [bookingId]);
 
     const formatTime = (dateInput: Date | string) => {
         const date = new Date(dateInput)
