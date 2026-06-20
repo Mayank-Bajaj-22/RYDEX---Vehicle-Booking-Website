@@ -2,10 +2,8 @@
 
 import axios from 'axios';
 import { Send, Sparkles, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux/store';
 import { getSocket } from '@/lib/socket';
 
 type message = {
@@ -27,7 +25,11 @@ function RideChat({ currentRole, bookingId ,userName, driverName } : any) {
     const [showAI, setShowAI] = useState(false);
     const [aiLoading, setAiLoading] = useState(false);
 
-    const { userData } = useSelector((state: RootState) => state.user)
+    const messageEndRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        messageEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, [messages])
 
     const sendMsg = async () => {
         const socket = getSocket();
@@ -186,6 +188,8 @@ function RideChat({ currentRole, bookingId ,userName, driverName } : any) {
                         })
                     )
                 }
+
+                <div ref={messageEndRef} />
             </div>
 
             <AnimatePresence>
