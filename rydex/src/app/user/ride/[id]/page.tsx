@@ -15,6 +15,7 @@ import { ChevronUp, Zap } from "lucide-react";
 import PanelContent from "@/components/PanelContent";
 import { useParams } from "next/navigation";
 import { getSocket } from "@/lib/socket";
+import CompletedScreen from "@/components/CompletedScreen";
 
 const MAP_STATUS: Record<BookingStatus, "arriving" | "ongoing" | "completed"> = {
     idle: "arriving",
@@ -158,6 +159,12 @@ function page() {
 
     const onChatToggle = () => {
         setChatOpen(prev => !prev);
+    }
+
+    if (status === "completed" && booking) {
+        return (
+            <CompletedScreen booking={booking} role="user" />
+        )
     }
 
     const cfg = STATUS_LABEL[booking?.bookingStatus! ?? "confirmed"];
