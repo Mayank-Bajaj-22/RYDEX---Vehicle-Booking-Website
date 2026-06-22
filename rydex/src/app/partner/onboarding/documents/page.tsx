@@ -44,7 +44,7 @@ function page() {
             const { data } = await axios.post("/api/partner/onboarding/documents", formData);
             setLoading(false)
             console.log(data)
-            router.push("/")
+            router.push("/partner/onboarding/bank")
         } catch (error: any) {
             setError(error?.response?.data?.message ?? "something went wrong");
             // console.log(error);

@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { getSocket } from '@/lib/socket';
 
-const Nav_Items = ["Home", "Bookings", "About Us", "Contact"];
+const Nav_Items = ["Home", "Bookings"];
 function Nav() {
 
     const pathname = usePathname();
@@ -206,17 +206,54 @@ function Nav() {
                                 className='fixed top-21.25 left-1/2 -translate-x-1/2 w-[92%] bg-[#0B0B0B] rounded-2xl shadow-2xl z-40 md:hidden overflow-hidden'
                             >
                                 <div className='flex flex-col divide-y divide-white/10'>
-                                    {
+                                    {userData?.role === "partner" ? (
+                                        <>
+                                            <Link
+                                                href="/"
+                                                className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                                            >
+                                                Home
+                                            </Link>
+
+                                            <Link
+                                                href="/partner/pending-requests"
+                                                className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                                            >
+                                                Pending Requests ({pendingCount})
+                                            </Link>
+
+                                            <Link
+                                                href="/partner/bookings"
+                                                className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                                            >
+                                                Bookings
+                                            </Link>
+
+                                            <Link
+                                                href="/partner/active-ride"
+                                                className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                                            >
+                                                Active Ride
+                                            </Link>
+                                        </>
+                                    ) : (
                                         Nav_Items.map((i, index) => {
-                                            let href;
-                                            if (i == "Home") {
-                                                href = `/`
-                                            } else {
-                                                href = `/${i.toLowerCase()}`
-                                            }
-                                            return <Link key={index} href={href} className="px-6 py-4 text-gray-300 hover:bg-white/5">{ i }</Link>
+                                            const href =
+                                                i === "Home"
+                                                    ? "/"
+                                                    : `/user/${i.toLowerCase()}`;
+
+                                            return (
+                                                <Link
+                                                    key={index}
+                                                    href={href}
+                                                    className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                                                >
+                                                    {i}
+                                                </Link>
+                                            );
                                         })
-                                    }
+                                    )}
                                 </div>
                             </motion.div>
                         </>

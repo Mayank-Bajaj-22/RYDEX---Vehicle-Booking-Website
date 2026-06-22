@@ -172,7 +172,13 @@ export async function GET(req: Request) {
                 }
             );
         } else {
-            return null;
+            return Response.json(
+            {
+                message: "Vehicle not found"
+            },
+            { 
+                status: 404
+            })
         }
     } catch (error) {
         return Response.json(
@@ -182,6 +188,6 @@ export async function GET(req: Request) {
             { 
                 status: 500 
             }
-        );
+        )
     }
-};    
+} 

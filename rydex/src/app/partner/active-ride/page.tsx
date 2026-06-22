@@ -121,7 +121,12 @@ function page() {
         setLoading(true)
         try {
             const { data } = await axios.get("/api/partner/my-active");
-            console.log("API DATA:", data);
+
+            if (!data) {
+                setLoading(false);
+                setBooking(null);
+                return;
+            }
             setBooking(data)
             setStatus(data.bookingStatus)
             setPickUpPos([data.pickUpLocation.coordinates[1], data.pickUpLocation.coordinates[0]])
@@ -267,6 +272,14 @@ function page() {
 
     const onChatToggle = () => {
         setChatOpen(prev => !prev);
+    }
+
+    if (booking === null) {
+        return (
+            <div className="bg-black w-full h-screen flex justify-center items-center text-[20px] text-white">
+                No Active Ride Found!
+            </div>
+        )
     }
 
     if (status === "completed" && booking) {

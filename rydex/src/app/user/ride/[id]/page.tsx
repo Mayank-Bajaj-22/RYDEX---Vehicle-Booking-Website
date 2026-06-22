@@ -1,6 +1,5 @@
 "use client";
 
-// import LiveRideMap from '@/components/LiveRideMap';
 import dynamic from "next/dynamic";
 
 const LiveRideMap = dynamic(
