@@ -8,6 +8,7 @@ import Kpi from './Kpi';
 import TabButton from './TabButton';
 import { AnimatePresence, motion } from 'motion/react';
 import ContentList from './ContentList';
+import AdminEarning from './AdminEarning';
 
 type Stats = {
     totalApprovedPartners: number,
@@ -127,6 +128,8 @@ function AdminDashboard() {
                         }
                     </motion.div>
                 </AnimatePresence>
+
+                <AdminEarning />
             </main>
         </div>
     )

@@ -121,6 +121,7 @@ function page() {
         setLoading(true)
         try {
             const { data } = await axios.get("/api/partner/my-active");
+            console.log("API DATA:", data);
             setBooking(data)
             setStatus(data.bookingStatus)
             setPickUpPos([data.pickUpLocation.coordinates[1], data.pickUpLocation.coordinates[0]])
@@ -131,6 +132,12 @@ function page() {
             setLoading(false)
         }
     }
+
+    console.log({
+    status,
+    bookingStatus: booking?.bookingStatus,
+    booking
+});
 
     const handleSendPickUpOtp = async () => {
         try {
@@ -161,7 +168,7 @@ function page() {
         try {
             const { data } = await axios.post("/api/partner/bookings/otp/pickup/verify", {
                 bookingId: booking?._id,
-                otp: dropOtp
+                otp
             });
             console.log(data);
             setOtpVerified(true);
@@ -185,7 +192,7 @@ function page() {
             });
             console.log(data);
             setLoadingDropOtp(false);
-            setDropOtpMode(true)
+            setDropOtpMode(false)
             setStatus("completed")
             setBooking(prev => prev ? {...prev, bookingStatus: "completed"} : prev);
         } catch (error: any) {

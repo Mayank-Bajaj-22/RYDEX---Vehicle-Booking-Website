@@ -143,7 +143,7 @@ function page() {
 
                         if (data.success) {
                             setStatus("confirmed");
-                            window.location.href = `/ride/${booking._id}`
+                            window.location.href = `/user/ride/${booking._id}`
                         }
                     }
                 });
@@ -610,7 +610,7 @@ function page() {
                                                 whileTap={{ scale: 0.97 }}
                                                 whileHover={{ scale: 1.03 }}
                                                 onClick={() => {
-                                                    window.location.href = `/ride/${booking._id}`;
+                                                    window.location.href = `/user/ride/${booking._id}`;
                                                 }}
                                                 className='flex items-center gap-2.5 bg-zinc-900 hover:bg-black text-white font-semibold text-sm px-8 py-4 rounded-2xl transition-colors shadow-md'
                                             >
