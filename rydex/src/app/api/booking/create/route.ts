@@ -14,10 +14,10 @@ export async function POST(req: NextRequest) {
         if (!session?.user) {
             return NextResponse.json(
                 {
-                    message: "Unauthorize"
+                    message: "Unauthorized"
                 },
                 {
-                    status: 400
+                    status: 401
                 }
             )
         }

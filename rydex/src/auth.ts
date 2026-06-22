@@ -4,6 +4,7 @@ import connectDb from "./lib/db";
 import User from "./models/user.model";
 import bcrypt from "bcryptjs";
 import Google from "next-auth/providers/google";
+import { logger } from "./lib/logger";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -25,7 +26,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             // authorize ke anadar hum logic likhenge kya karna hai
             async authorize(credentials, request) {
                 if (!credentials.email || !credentials.password) {
-                    throw Error("missing credentials");
+                    logger.warn({
+                        action: "LOGIN_FAILED",
+                        reason: "MISSING_CREDENTIALS"
+                    });
+
+                    throw new Error("Missing credentials");
                 }
 
                 const email = credentials.email;
@@ -36,46 +42,84 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const user = await User.findOne({ email })
 
                 if (!user) {
-                    throw Error("user doesn't exists");
+                    logger.warn({
+                        action: "LOGIN_FAILED",
+                        reason: "USER_NOT_FOUND",
+                        email
+                    });
+
+                    throw new Error("User does not exist");
                 }
 
                 const isMatch = await bcrypt.compare(password, user.password)
 
                 if (!isMatch) {
-                    throw Error("incorrect password")
+                    logger.warn({
+                        action: "LOGIN_FAILED",
+                        reason: "INVALID_PASSWORD",
+                        email
+                    });
+
+                    throw new Error("Incorrect password");
                 }
+
+                logger.info({
+                    action: "USER_LOGIN_SUCCESS",
+                    userId: user._id,
+                    email: user.email,
+                    provider: "credentials"
+                });
 
                 return {
                     id: user._id,
                     name: user.name,
                     email: user.email,
                     role: user.role
-                }
-            }
+                };
+            },
         }),
 
         Google({
-            clientId: process.env.AUTH_GOOGLE_ID,
-            clientSecret: process.env.AUTH_GOOGLE_SECRET
+            clientId: process.env.AUTH_GOOGLE_ID!,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET!
         })
     ],
 
     callbacks: {
         async signIn({ user, account }) {
             // console.log("DB USER ROLE:", dbUser.role);
-            if (account?.provider == "google") {
+            if (account?.provider === "google") {        
+                logger.info({
+                    action: "GOOGLE_SIGNIN_STARTED",
+                    email: user.email
+                });
+
                 await connectDb();
 
-                const dbUser = await User.findOne({ email: user.email });
+                let dbUser = await User.findOne({ email: user.email });
+
                 if (!dbUser) {
-                    await User.create({
+                    dbUser = await User.create({
                         name: user.name,
                         email: user.email
                     })
+
+                    logger.info({
+                        action: "USER_REGISTERED_GOOGLE",
+                        userId: dbUser._id,
+                        email: dbUser.email,
+                    });
                 }
 
-                user.id = dbUser._id
-                user.role = dbUser.role
+                logger.info({
+                    action: "USER_LOGIN_SUCCESS",
+                    userId: dbUser._id,
+                    email: dbUser.email,
+                    provider: "google",
+                });
+
+                user.id = dbUser._id.toString();
+                user.role = dbUser.role;
             }
 
             return true

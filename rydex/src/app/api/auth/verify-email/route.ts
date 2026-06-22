@@ -1,4 +1,5 @@
 import connectDb from "@/lib/db";
+import { logger } from "@/lib/logger";
 import User from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,20 +9,31 @@ export async function POST(req: NextRequest) {
         
         const { email, otp } = await req.json()
 
-        if (!email && !otp) {
+        if (!email || !otp) {
+            logger.warn({
+                action: "OTP_VERIFICATION_FAILED",
+                reason: "MISSING_FIELDS"
+            });
+
             return NextResponse.json(
                 {
                     message: "email and otp is required"
                 },
-                {
+                {   
                     status: 400
                 }
             )
         }
 
-        let user = await User.findOne({ email })
+        let user = await User.findOne({ email });
 
         if (!user) {
+            logger.warn({
+                action: "OTP_VERIFICATION_FAILED",
+                reason: "USER_NOT_FOUND",
+                email
+            });
+
             return NextResponse.json(
                 {
                     message: "user not found"
@@ -33,6 +45,12 @@ export async function POST(req: NextRequest) {
         }
 
         if (user.isEmailVerified) {
+            logger.warn({
+                action: "OTP_VERIFICATION_SKIPPED",
+                reason: "EMAIL_ALREADY_VERIFIED",
+                email
+            });
+
             return NextResponse.json(
                 {
                     message: "email is already verified"
@@ -44,6 +62,12 @@ export async function POST(req: NextRequest) {
         }
 
         if (!user.otpExpiresIn || user.otpExpiresIn < Date.now()) {
+            logger.warn({
+                action: "OTP_VERIFICATION_FAILED",
+                reason: "OTP_EXPIRED",
+                email
+            });
+
             return NextResponse.json(
                 {
                     message: "otp has been expired"
@@ -55,6 +79,12 @@ export async function POST(req: NextRequest) {
         }
 
         if (!user.otp || user.otp !== otp) {
+            logger.warn({
+                action: "OTP_VERIFICATION_FAILED",
+                reason: "INVALID_OTP",
+                email
+            });
+
             return NextResponse.json(
                 {
                     message: "invalid otp"
@@ -71,6 +101,12 @@ export async function POST(req: NextRequest) {
 
         await user.save()
 
+        logger.info({
+            action: "EMAIL_VERIFIED",
+            userId: user._id,
+            email
+        });
+
         return NextResponse.json(
             {
                 message: "email is verified"
@@ -81,9 +117,17 @@ export async function POST(req: NextRequest) {
         )
 
     } catch (error) {
+        logger.error({
+            action: "EMAIL_VERIFICATION_ERROR",
+            message:
+                error instanceof Error
+                    ? error.message
+                    : "Unknown error",
+        });
+
         return NextResponse.json(
             {
-                message: `verify email error ${error}`
+                message: "Failed to verify email"
             },
             {
                 status: 500

@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import { logger } from "./logger";
 
 const mongodbUrl = process.env.MONGODB_URI;
 
 if (!mongodbUrl) {
-    throw new Error("db url not found!")
+    throw new Error("MONGODB_URI not found!");
 }
 
 let cached = global.mongooseConn;
@@ -11,26 +12,50 @@ let cached = global.mongooseConn;
 if (!cached) {
     cached = global.mongooseConn = {
         conn: null,
-        promise: null
-    }
+        promise: null,
+    };
 }
 
 const connectDb = async () => {
     if (cached.conn) {
-        return cached.conn
+        return cached.conn;
     }
 
     if (!cached.promise) {
-        cached.promise = mongoose.connect(mongodbUrl).then(c => c.connection)
+        logger.info({
+            action: "DATABASE_CONNECTING",
+        });
+
+        cached.promise = mongoose
+        .connect(mongodbUrl)
+        .then((mongooseInstance) => {
+            logger.info({
+            action: "DATABASE_CONNECTED",
+            database: mongooseInstance.connection.name,
+            });
+
+            return mongooseInstance.connection;
+        });
     }
-    console.log("MongoDB connected");
 
     try {
         const conn = await cached.promise;
-        return conn
+        cached.conn = conn;
+
+        return conn;
     } catch (error) {
-        console.log(error)
+        logger.error({
+        action: "DATABASE_CONNECTION_FAILED",
+        message:
+            error instanceof Error
+            ? error.message
+            : "Unknown error",
+        });
+
+        cached.promise = null;
+
+        throw error;
     }
-}
+};
 
 export default connectDb;
