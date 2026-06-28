@@ -1,14 +1,16 @@
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
+import { logger } from "@/lib/logger";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
+    let session;
     try {
         await connectDb();
 
-        const session = await auth();
+        session = await auth();
         
         if (!session?.user) {
             return NextResponse.json(
@@ -41,12 +43,20 @@ export async function GET(req: NextRequest) {
             }
         )
     } catch (error) {
+        logger.error({
+            action: "GET_ACTIVE_BOOKING_ERROR",
+            userEmail: session?.user?.email,
+            message:
+                error instanceof Error
+                    ? error.message
+                    : "Unknown error"
+        });
         return NextResponse.json(
             {
-                message: `get active booking error ${error}`
+                message: "Failed to fetch active booking"
             },
             {
-                status: 200
+                status: 500
             }
         )
     }

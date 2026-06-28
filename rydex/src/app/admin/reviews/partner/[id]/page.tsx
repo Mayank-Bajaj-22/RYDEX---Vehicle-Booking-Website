@@ -14,7 +14,13 @@ import { AnimatePresence, motion } from 'motion/react'
 
 function page() {
 
-    const { id } = useParams();
+    // const { id } = useParams();
+    // console.log(id)
+
+    const params = useParams();
+    console.log(params);
+    const id = params.id;
+
     const [data, setData] = useState<IUser | null>(null);
     const [vehicleDetails, setVehicleDetails] = useState<IVehicle | null>(null);
     const [partnerDocs, setPartnerDocs] = useState<IPartnerDocs | null>(null);

@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
+import { logger } from "@/lib/logger";
 import User from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
 
@@ -12,6 +13,11 @@ export async function POST(req: Request) {
         const session = await auth();
 
         if (!session || !session.user) {
+            logger.warn({
+                action: "VEHICLE_ONBOARDING_FAILED",
+                reason: "UNAUTHORIZED"
+            });
+
             return Response.json(
                 { 
                     message: "Unauthorized" 
@@ -24,6 +30,12 @@ export async function POST(req: Request) {
 
         const user = await User.findOne({ email: session.user.email });
         if (!user) {
+            logger.warn({
+                action: "VEHICLE_ONBOARDING_FAILED",
+                reason: "USER_NOT_FOUND",
+                email: session.user.email
+            });
+
             return Response.json(
                 { 
                     message: "User not found" 
@@ -36,6 +48,12 @@ export async function POST(req: Request) {
 
         const { type, number, vehicleModel } = await req.json();
         if (!type || !number || !vehicleModel) {
+            logger.warn({
+                action: "VEHICLE_ONBOARDING_FAILED",
+                reason: "MISSING_FIELDS",
+                userId: user._id
+            });
+
             return Response.json(
                 { 
                     message: "Missing required fields" 
@@ -47,6 +65,12 @@ export async function POST(req: Request) {
         }
 
         if (!VEHICLE_REGEX.test(number)) {
+            logger.warn({
+                action: "VEHICLE_ONBOARDING_FAILED",
+                reason: "INVALID_VEHICLE_NUMBER",
+                userId: user._id
+            });
+
             return Response.json(
                 { 
                     message: "Invalid vehicle number format" 
@@ -87,6 +111,12 @@ export async function POST(req: Request) {
 
         const duplicateVehicle = await Vehicle.findOne({ number: vehicleNumber.toUpperCase() });
         if (duplicateVehicle) {
+            logger.warn({
+                action: "VEHICLE_ONBOARDING_FAILED",
+                reason: "DUPLICATE_VEHICLE_NUMBER",
+                vehicleNumber
+            });
+
             return Response.json(
                 { 
                     message: "Vehicle number already exists" 
@@ -120,11 +150,17 @@ export async function POST(req: Request) {
             }
         );
     } catch (error) {
-        console.error("VEHICLE API ERROR:", error);
+        logger.error({
+            action: "VEHICLE_API_ERROR",
+            message:
+                error instanceof Error
+                    ? error.message
+                    : "Unknown error"
+        });
 
         return Response.json(
             {
-                error: error instanceof Error ? error.message : String(error),
+                message: "Failed to process vehicle"
             },
             {
                 status: 500,
